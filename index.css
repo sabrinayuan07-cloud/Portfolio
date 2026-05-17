@@ -1,0 +1,141 @@
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0d0008;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+/* ── Shared full-screen layer ─────────────────────────────────────────── */
+.splash,
+.home {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ── Splash screen ────────────────────────────────────────────────────── */
+.splash {
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeOut 1.8s ease-in-out 5s forwards;
+}
+
+.splash-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: url(#sharpen) contrast(1.08) saturate(1.06);
+}
+
+.welcome {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 16vh;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(3.2rem, 7.5vw, 6.5rem);
+  color: #5a2a3e;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 14px rgba(90, 42, 62, 0.25);
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; pointer-events: none; }
+}
+
+/* ── Home page ────────────────────────────────────────────────────────── */
+.home {
+  z-index: 1;
+}
+
+.home-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: url(#sharpen) contrast(1.06) saturate(1.04);
+}
+
+/* ── Top navigation bar ───────────────────────────────────────────────── */
+.topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  padding: 2rem 2.8rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, transparent 100%);
+  /* slides in gently after splash clears */
+  animation: navIn 1s ease-out 6.4s both;
+}
+
+@keyframes navIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Brand — top left */
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.brand-name {
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1.05rem;
+  letter-spacing: 0.30em;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.brand-sub {
+  font-weight: 300;
+  font-style: italic;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.70);
+}
+
+/* Nav links — top right */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 2.4rem;
+  padding-top: 0.1rem;
+}
+
+.nav a {
+  font-weight: 400;
+  font-style: normal;
+  font-size: 0.82rem;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+
+.nav a:hover {
+  color: #ffffff;
+}

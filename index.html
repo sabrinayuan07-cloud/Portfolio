@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sabrina Yuan — Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+
+  <!-- SVG unsharp-mask sharpening filter -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <defs>
+      <filter id="sharpen" color-interpolation-filters="sRGB" x="0%" y="0%" width="100%" height="100%">
+        <feGaussianBlur stdDeviation="0.5" result="blur"/>
+        <feComposite in="SourceGraphic" in2="blur" operator="arithmetic" k1="0" k2="1.4" k3="-0.4" k4="0"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <style>
+    /* ─── Reset ─────────────────────────────────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: #0d080f;
+      color: #f5f0f2;
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* hide custom cursor on touch devices */
+    @media (hover: none) {
+      body { cursor: auto; }
+      #cursor { display: none; }
+    }
+
+    /* ─── Custom pink dot cursor ─────────────────────────────────────────── */
+    #cursor {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      background: #f9a8d4;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: width .2s ease, height .2s ease, background .2s ease, opacity .2s ease;
+    }
+
+    /* ─── Splash screen ──────────────────────────────────────────────────── */
+    .splash {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: splashOut 1.2s ease-in-out 3s forwards;
+    }
+    @keyframes splashOut {
+      to { opacity: 0; pointer-events: none; }
+    }
+    .splash-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      filter: url(#sharpen) contrast(1.08) saturate(1.06);
+    }
+    .welcome {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 16vh;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(3.2rem, 7.5vw, 6.5rem);
+      color: #5a2a3e;
+      letter-spacing: 0.02em;
+      text-shadow: 0 1px 14px rgba(90,42,62,.25);
+    }
+
+    /* ─── Fixed nav ──────────────────────────────────────────────────────── */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.8rem 3rem;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      background: linear-gradient(to bottom, rgba(13,8,15,.65) 0%, transparent 100%);
+    }
+    .brand { display: flex; flex-direction: column; gap: .22rem; text-decoration: none; }
+    .brand-name {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: .28em;
+      color: #f5f0f2;
+      text-transform: uppercase;
+    }
+    .brand-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 1rem;
+      letter-spacing: .06em;
+      color: rgba(245,240,242,.62);
+    }
+    .nav { display: flex; align-items: center; gap: .3rem; padding-top: .25rem; }
+    .nav a {
+      position: relative;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: .78rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: rgba(245,240,242,.8);
+      text-decoration: none;
+      padding-bottom: 2px;
+      transition: color .25s;
+    }
+    .nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 1px;
+      background: #f9a8d4;
+      transition: width .3s ease;
+    }
+    .nav a:hover { color: #f9a8d4; }
+    .nav a:hover::after { width: 100%; }
+    .dot { color: rgba(249,168,212,.35); font-size: .75rem; margin: 0 .45rem; user-select: none; }
+
+    /* ─── Sections: scroll offset for fixed nav ──────────────────────────── */
+    section { scroll-margin-top: 70px; }
+
+    /* ─── Fade-in on scroll (IntersectionObserver) ───────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .9s ease, transform .9s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-d1 { transition-delay: .1s; }
+    .reveal-d2 { transition-delay: .22s; }
+    .reveal-d3 { transition-delay: .34s; }
+    .reveal-d4 { transition-delay: .46s; }
+
+    /* ─── Section container ──────────────────────────────────────────────── */
+    .inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 8rem 5vw;
+    }
+    .section-tag {
+      font-family: 'DM Sans', sans-serif;
+      font-size: .68rem;
+      font-weight: 600;
+      letter-spacing: .32em;
+      text-transform: uppercase;
+      color: #db2777;
+      margin-bottom: 2.8rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       HERO
+    ══════════════════════════════════════════════════════════════════ */
+    #hero {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+      filter: url(#sharpen) contrast(1.06) saturate(1.04);
+    }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(13,8,15,.22)  0%,
+        rgba(13,8,15,.0)   30%,
+        rgba(13,8,15,.55)  65%,
+        rgba(13,8,15,.92)  100%
+      );
+    }
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      padding-bottom: 5.5rem;
+    }
+    .hero-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(4rem, 9vw, 9rem);
+      color: #f5f0f2;
+      letter-spacing: .06em;
+      line-height: 1;
+      margin-bottom: 1.2rem;
+    }
+    .hero-tagline {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(1rem, 1.8vw, 1.35rem);
+      color: rgba(245,240,242,.68);
+      letter-spacing: .03em;
+    }
+    /* scroll indicator */
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem; left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+      display: flex; flex-direction: column;
+      align-items: center; gap: .5rem;
+    }
+    .scroll-hint span {
+      font-family: 'DM Sans', sans-serif;
+      font-size: .58rem; font-weight: 400;
+      letter-spacing: .28em; text-transform: uppercase;
+      color: rgba(249,168,212,.45);
+    }
+    .scroll-line {
+      width: 1px; height: 38px;
+      background: linear-gradient(to bottom, rgba(249,168,212,.5), transparent);
+      transform-origin: top;
+      animation: lineGrow 2.2s ease-in-out infinite;
+    }
+    @keyframes lineGrow {
+      0%   { transform: scaleY(0); opacity: 1; }
+      55%  { transform: scaleY(1); opacity: 1; }
+      100% { transform: scaleY(1); opacity: 0; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       WORK
+    ══════════════════════════════════════════════════════════════════ */
+    #work { background: #0d080f; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.4rem;
+    }
+    .card {
+      background: #130b19;
+      border: 1px solid rgba(249,168,212,.1);
+      border-radius: 3px;
+      padding: 2.2rem;
+      transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(219,39,119,.45);
+      box-shadow: 0 0 32px rgba(219,39,119,.1), 0 8px 28px rgba(0,0,0,.55);
+    }
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 1.6rem;
+      color: #f5f0f2;
+      line-height: 1.15;
+      margin-bottom: .5rem;
+    }
+    .card-award {
+      font-size: .72rem; font-weight: 400;
+      letter-spacing: .06em;
+      color: #f9a8d4;
+      margin-bottom: .9rem;
+      min-height: 1rem;
+    }
+    .card-desc {
+      font-weight: 300; font-size: .88rem;
+      color: rgba(245,240,242,.55);
+      line-height: 1.75;
+      margin-bottom: 1.4rem;
+    }
+    .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.6rem; }
+    .tag {
+      font-size: .67rem; font-weight: 500;
+      letter-spacing: .06em;
+      color: #f9a8d4;
+      background: rgba(249,168,212,.07);
+      border: 1px solid rgba(249,168,212,.18);
+      border-radius: 2px;
+      padding: .22rem .62rem;
+    }
+    .card-links { display: flex; gap: 1.4rem; }
+    .card-links a {
+      font-size: .74rem; font-weight: 500;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: rgba(249,168,212,.62);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(249,168,212,.2);
+      padding-bottom: 1px;
+      transition: color .2s, border-color .2s;
+    }
+    .card-links a:hover { color: #f9a8d4; border-color: #f9a8d4; }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       ABOUT
+    ══════════════════════════════════════════════════════════════════ */
+    #about { background: #0f0a14; }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.55fr;
+      gap: 5rem;
+      align-items: start;
+    }
+    .about-photo {
+      width: 100%;
+      aspect-ratio: 3/4;
+      background: #1a0f22;
+      border: 1px solid rgba(249,168,212,.1);
+      border-radius: 3px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .about-photo::after {
+      content: 'photo';
+      font-size: .7rem; letter-spacing: .2em; text-transform: uppercase;
+      color: rgba(249,168,212,.18);
+    }
+    .about-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: clamp(2.8rem, 5vw, 4.5rem);
+      color: #f5f0f2;
+      line-height: 1.05;
+      margin-bottom: 2rem;
+    }
+    .about-body p {
+      font-weight: 300; font-size: .92rem;
+      line-height: 1.9;
+      color: rgba(245,240,242,.62);
+      margin-bottom: 1.1rem;
+    }
+    .pills { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 2rem; }
+    .pill {
+      font-size: .72rem; font-weight: 500; letter-spacing: .05em;
+      color: rgba(249,168,212,.8);
+      background: rgba(249,168,212,.06);
+      border: 1px solid rgba(249,168,212,.2);
+      border-radius: 100px;
+      padding: .3rem .9rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       RESUME
+    ══════════════════════════════════════════════════════════════════ */
+    #resume { background: #0d080f; text-align: center; }
+    .resume-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      color: #f5f0f2;
+      margin-bottom: .9rem;
+    }
+    .resume-sub {
+      font-weight: 300; font-size: .88rem;
+      color: rgba(245,240,242,.4);
+      margin-bottom: 3rem; letter-spacing: .03em;
+    }
+    .btn {
+      display: inline-block;
+      font-size: .78rem; font-weight: 600;
+      letter-spacing: .22em; text-transform: uppercase;
+      color: #f9a8d4;
+      border: 1px solid rgba(249,168,212,.35);
+      padding: .95rem 2.8rem;
+      text-decoration: none;
+      transition: background .3s, border-color .3s, box-shadow .3s;
+    }
+    .btn:hover {
+      background: rgba(249,168,212,.08);
+      border-color: rgba(249,168,212,.7);
+      box-shadow: 0 0 20px rgba(249,168,212,.1);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       CONTACT
+    ══════════════════════════════════════════════════════════════════ */
+    #contact { background: #0f0a14; text-align: center; }
+    .contact-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300; font-style: italic;
+      font-size: clamp(3rem, 6vw, 5.2rem);
+      color: #f5f0f2;
+      margin-bottom: 1.2rem;
+    }
+    .contact-sub {
+      font-weight: 300; font-size: .9rem;
+      color: rgba(245,240,242,.42);
+      margin-bottom: 4rem;
+    }
+    .contact-row {
+      display: flex; justify-content: center;
+      gap: 4.5rem; margin-bottom: 6rem;
+    }
+    .clink {
+      display: flex; flex-direction: column;
+      align-items: center; gap: .65rem;
+      text-decoration: none;
+      color: rgba(245,240,242,.55);
+      transition: color .25s;
+    }
+    .clink:hover { color: #f9a8d4; }
+    .clink-icon {
+      width: 46px; height: 46px;
+      border: 1.5px solid currentColor;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; line-height: 1;
+      transition: border-color .25s;
+    }
+    .clink-label {
+      font-size: .68rem; font-weight: 600;
+      letter-spacing: .2em; text-transform: uppercase;
+    }
+    footer {
+      font-size: .7rem; font-weight: 300;
+      color: rgba(245,240,242,.22);
+      letter-spacing: .06em;
+      padding-bottom: 3rem;
+    }
+
+    /* ─── Responsive ─────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .topbar { padding: 1.4rem 1.6rem; }
+      .brand-name { font-size: .88rem; letter-spacing: .18em; }
+      .brand-sub { font-size: .85rem; }
+      .nav a { font-size: .68rem; letter-spacing: .12em; }
+      .dot { margin: 0 .2rem; }
+      .inner { padding: 5.5rem 6vw; }
+      .cards { grid-template-columns: 1fr; }
+      .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      .about-photo { aspect-ratio: 4/3; }
+      .contact-row { gap: 2.2rem; }
+    }
+    @media (max-width: 480px) {
+      .dot { display: none; }
+      .nav { gap: .8rem; }
+      .nav a { font-size: .62rem; letter-spacing: .08em; }
+      .hero-name { letter-spacing: .02em; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor -->
+  <div id="cursor"></div>
+
+  <!-- ─── Splash ──────────────────────────────────────────────────────────── -->
+  <div class="splash">
+    <img class="splash-bg" src="pink-bg.png" alt="">
+    <h1 class="welcome">welcome</h1>
+  </div>
+
+  <!-- ─── Fixed Nav ───────────────────────────────────────────────────────── -->
+  <nav class="topbar">
+    <a class="brand" href="#hero">
+      <span class="brand-name">Sabrina Yuan</span>
+      <span class="brand-sub">Portfolio</span>
+    </a>
+    <div class="nav">
+      <a href="#work">Work</a>
+      <span class="dot" aria-hidden="true">·</span>
+      <a href="#about">About</a>
+      <span class="dot" aria-hidden="true">·</span>
+      <a href="#resume">Resume</a>
+      <span class="dot" aria-hidden="true">·</span>
+      <a href="#contact">Contact</a>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <section id="hero">
+    <img class="hero-bg" src="hero-bg.jpg" alt="">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1 class="hero-name">Sabrina Yuan</h1>
+      <p class="hero-tagline">Cognitive systems student at the intersection of AI and design</p>
+    </div>
+    <div class="scroll-hint">
+      <span>scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       WORK
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <section id="work">
+    <div class="inner">
+      <p class="section-tag reveal">Selected Work</p>
+      <div class="cards">
+
+        <article class="card reveal reveal-d1">
+          <h3 class="card-title">Bento Buddies</h3>
+          <p class="card-award">🏆 Top 3 · Best Accessible Design — HackCamp 2025</p>
+          <p class="card-desc">Campus dining meetup app built with Firebase, Google Maps API, and SwiftUI. Helps UBC students find people to eat with.</p>
+          <div class="tags">
+            <span class="tag">iOS</span>
+            <span class="tag">Firebase</span>
+            <span class="tag">Accessibility</span>
+          </div>
+          <div class="card-links">
+            <a href="#" target="_blank">DevPost ↗</a>
+            <a href="#" target="_blank">GitHub ↗</a>
+          </div>
+        </article>
+
+        <article class="card reveal reveal-d2">
+          <h3 class="card-title">Ripple</h3>
+          <p class="card-award">🏆 Top 3 — nwHacks 2026</p>
+          <p class="card-desc">Peer support wellness app for students built with React Native, Expo, and ElevenLabs API.</p>
+          <div class="tags">
+            <span class="tag">React Native</span>
+            <span class="tag">Wellness</span>
+            <span class="tag">AI</span>
+          </div>
+          <div class="card-links">
+            <a href="#" target="_blank">DevPost ↗</a>
+            <a href="#" target="_blank">GitHub ↗</a>
+          </div>
+        </article>
+
+        <article class="card reveal reveal-d3">
+          <h3 class="card-title">Memory Lane</h3>
+          <p class="card-award">&nbsp;</p>
+          <p class="card-desc">Voice-first reminiscence therapy app for seniors. Firebase + ElevenLabs + Gemini API.</p>
+          <div class="tags">
+            <span class="tag">Firebase</span>
+            <span class="tag">AI</span>
+            <span class="tag">Accessibility</span>
+          </div>
+          <div class="card-links">
+            <a href="#" target="_blank">DevPost ↗</a>
+            <a href="#" target="_blank">GitHub ↗</a>
+          </div>
+        </article>
+
+        <article class="card reveal reveal-d4">
+          <h3 class="card-title">RAG Mental Health Chatbot</h3>
+          <p class="card-award">&nbsp;</p>
+          <p class="card-desc">Context-aware chatbot using retrieval-augmented generation. LangChain, ChromaDB, Anthropic API.</p>
+          <div class="tags">
+            <span class="tag">Python</span>
+            <span class="tag">LangChain</span>
+            <span class="tag">AI</span>
+          </div>
+          <div class="card-links">
+            <a href="#" target="_blank">GitHub ↗</a>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       ABOUT
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <section id="about">
+    <div class="inner">
+      <p class="section-tag reveal">About</p>
+      <div class="about-grid">
+
+        <div class="about-photo reveal"></div>
+
+        <div class="about-body reveal reveal-d1">
+          <h2 class="about-heading">About me</h2>
+          <p>I'm a third-year Cognitive Systems student at UBC, specializing in Brain and Cognition. Currently working as an AI Developer at the Department of National Defence and as a UI/UX Designer at UBC Startups Club.</p>
+          <p>I build real-world apps that solve real problems — whether that's helping UBC students find people to eat with, or helping seniors preserve their memories through voice. AI is what I'm most obsessed with right now, and I'm always looking for ways to make it actually useful for people.</p>
+          <p>Outside of tech, I'm at the gym most days, always chasing a new trail to run, trying new restaurants, cooking high-protein meals, and reading whenever I can. Trilingual (French, English, Mandarin), and happiest when I'm doing too many things at once.</p>
+          <p>Currently hitting my protein goals. 🎯</p>
+          <div class="pills">
+            <span class="pill">AI &amp; ML</span>
+            <span class="pill">UI/UX Design</span>
+            <span class="pill">iOS Dev</span>
+            <span class="pill">Cognitive Science</span>
+            <span class="pill">Accessibility</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       RESUME
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <section id="resume">
+    <div class="inner reveal">
+      <p class="section-tag">Resume</p>
+      <h2 class="resume-heading">Resume</h2>
+      <p class="resume-sub">Download a copy or view below.</p>
+      <a href="resume.pdf" class="btn" target="_blank">Download Resume</a>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       CONTACT
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <section id="contact">
+    <div class="inner reveal">
+      <h2 class="contact-heading">Let's connect</h2>
+      <p class="contact-sub">Open to opportunities, collaborations, and good conversations.</p>
+
+      <div class="contact-row">
+        <a href="mailto:sabrinayuan2005@gmail.com" class="clink">
+          <div class="clink-icon">✉</div>
+          <span class="clink-label">Email</span>
+        </a>
+        <a href="https://linkedin.com/in/sabrinayuan" class="clink" target="_blank" rel="noopener">
+          <div class="clink-icon" style="font-family:'DM Sans',sans-serif; font-weight:700; font-size:.85rem; letter-spacing:.02em;">in</div>
+          <span class="clink-label">LinkedIn</span>
+        </a>
+        <a href="https://github.com/sabrinayuan" class="clink" target="_blank" rel="noopener">
+          <div class="clink-icon" style="font-family:'DM Sans',sans-serif; font-weight:600; font-size:.72rem; letter-spacing:.04em;">&lt;/&gt;</div>
+          <span class="clink-label">GitHub</span>
+        </a>
+      </div>
+
+      <footer>© 2026 Sabrina Yuan — Designed &amp; built by me</footer>
+    </div>
+  </section>
+
+  <script>
+    // ── Custom cursor ────────────────────────────────────────────────────────
+    const cursor = document.getElementById('cursor');
+
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top  = e.clientY + 'px';
+    });
+
+    document.querySelectorAll('a, button, .card').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.width      = '20px';
+        cursor.style.height     = '20px';
+        cursor.style.background = '#db2777';
+        cursor.style.opacity    = '.45';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.style.width      = '8px';
+        cursor.style.height     = '8px';
+        cursor.style.background = '#f9a8d4';
+        cursor.style.opacity    = '1';
+      });
+    });
+
+    // ── Smooth scroll for nav links ──────────────────────────────────────────
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+      });
+    });
+
+    // ── Reveal sections on scroll ────────────────────────────────────────────
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  </script>
+
+</body>
+</html>
