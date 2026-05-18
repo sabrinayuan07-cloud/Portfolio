@@ -396,12 +396,12 @@
       font-family: 'Cormorant Garamond', serif;
       font-weight: 300; font-style: italic;
       font-size: clamp(3rem, 6vw, 5.2rem);
-      color: #f5f0f2;
+      color: #f9c8dc;
       margin-bottom: 1.2rem;
     }
     .contact-sub {
       font-weight: 300; font-size: .9rem;
-      color: rgba(245,240,242,.42);
+      color: rgba(249,168,212,.5);
       margin-bottom: 4rem;
     }
     .contact-row {
@@ -412,17 +412,21 @@
       display: flex; flex-direction: column;
       align-items: center; gap: .65rem;
       text-decoration: none;
-      color: rgba(245,240,242,.55);
+      color: rgba(249,168,212,.7);
       transition: color .25s;
     }
     .clink:hover { color: #f9a8d4; }
     .clink-icon {
       width: 46px; height: 46px;
-      border: 1.5px solid currentColor;
+      border: 1.5px solid rgba(249,168,212,.45);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 1.1rem; line-height: 1;
-      transition: border-color .25s;
+      transition: border-color .25s, box-shadow .25s;
+    }
+    .clink:hover .clink-icon {
+      border-color: #f9a8d4;
+      box-shadow: 0 0 14px rgba(249,168,212,.2);
     }
     .clink-label {
       font-size: .68rem; font-weight: 600;
@@ -430,7 +434,7 @@
     }
     footer {
       font-size: .7rem; font-weight: 300;
-      color: rgba(245,240,242,.22);
+      color: rgba(249,168,212,.25);
       letter-spacing: .06em;
       padding-bottom: 3rem;
     }
@@ -470,8 +474,7 @@
   <!-- ─── Fixed Nav ───────────────────────────────────────────────────────── -->
   <nav class="topbar">
     <a class="brand" href="#hero">
-      <span class="brand-name">Sabrina Yuan</span>
-      <span class="brand-sub">Portfolio</span>
+      <span class="brand-name">Portfolio</span>
     </a>
     <div class="nav">
       <a href="#work">Work</a>
