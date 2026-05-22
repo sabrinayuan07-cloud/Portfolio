@@ -315,9 +315,8 @@
     #about { background: #0f0a14; }
     .about-grid {
       display: grid;
-      grid-template-columns: 1fr 1.55fr;
-      gap: 5rem;
-      align-items: start;
+      grid-template-columns: 1fr;
+      max-width: 720px;
     }
     .about-photo {
       width: 100%;
@@ -584,9 +583,7 @@
       <p class="section-tag reveal">About</p>
       <div class="about-grid">
 
-        <div class="about-photo reveal"></div>
-
-        <div class="about-body reveal reveal-d1">
+        <div class="about-body reveal">
           <h2 class="about-heading">About me</h2>
           <p>I'm a third-year Cognitive Systems student at UBC, specializing in Brain and Cognition. I'm currently working as an AI Developer at the Department of National Defence and as a UI/UX Designer at UBC Startups Club.</p>
           <p>I like to build real-world apps that solve real problems — whether that's helping UBC students find lunch buddies or helping seniors relive memories through voice.</p>
