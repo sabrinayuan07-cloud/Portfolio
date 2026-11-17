@@ -14,36 +14,3 @@ if (!prefersReducedMotion && 'IntersectionObserver' in window) {
 
   fadeEls.forEach((el) => observer.observe(el));
 }
-
-/* Hero 3D pearls — lazy-loaded, WebGL-gated, reduced-motion-gated. */
-function supportsWebGL() {
-  try {
-    const canvas = document.createElement('canvas');
-    return !!(window.WebGLRenderingContext &&
-      (canvas.getContext('webgl2') || canvas.getContext('webgl')));
-  } catch (e) {
-    return false;
-  }
-}
-
-const isMobileViewport = window.matchMedia('(max-width: 560px)').matches;
-
-if (!prefersReducedMotion && !isMobileViewport && supportsWebGL()) {
-  const hero = document.getElementById('top');
-  const canvas = document.getElementById('hero-canvas');
-
-  const start = () => {
-    import('./hero-scene.js')
-      .then((mod) => mod.initHeroScene(canvas, hero))
-      .then(() => hero.classList.add('has-webgl'))
-      .catch(() => { /* keep CSS fallback pearls on any failure */ });
-  };
-
-  if (document.readyState === 'complete') {
-    (window.requestIdleCallback || window.setTimeout)(start, { timeout: 1500 });
-  } else {
-    window.addEventListener('load', () => {
-      (window.requestIdleCallback || window.setTimeout)(start, { timeout: 1500 });
-    });
-  }
-}
