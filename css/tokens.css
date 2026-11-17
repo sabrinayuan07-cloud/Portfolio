@@ -1,0 +1,53 @@
+:root {
+  /* Colour */
+  --night: #0E0A0C;
+  --glow: #F2A9BE;
+  --blush: #F7F1EF;
+  --rose: #A4506A;
+  --mauve: #5E5157;
+  --muted: #74666C;
+  --ink: #2B2226;
+
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.9);
+  --glass-border-strong: #FFFFFF;
+  --glass-blur: 18px;
+  --glass-shadow: 0 20px 50px -30px rgba(120, 70, 90, 0.35);
+
+  --hairline: rgba(164, 80, 106, 0.15);
+  --hairline-strong: rgba(164, 80, 106, 0.2);
+
+  /* Radii */
+  --radius-hero: 28px;
+  --radius-card: 24px;
+  --radius-image: 14px;
+  --radius-btn: 8px;
+
+  /* Type */
+  --font-display: 'Instrument Serif', serif;
+  --font-body: 'Geist', Inter, system-ui, sans-serif;
+
+  --label-size: 11px;
+  --label-tracking: 0.22em;
+
+  --fs-display: clamp(52px, 7vw, 96px);
+  --fs-section: clamp(34px, 3.6vw, 46px);
+  --fs-title: clamp(20px, 2vw, 24px);
+  --fs-body: 15px;
+
+  /* Spacing rhythm */
+  --space-page: clamp(24px, 5vw, 56px);
+  --space-card: clamp(28px, 4vw, 48px);
+  --max-width: 1240px;
+
+  /* Motion */
+  --ease-fade: cubic-bezier(.2, .7, .2, 1);
+  --fade-distance: 14px;
+  --fade-duration: 1.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --fade-distance: 0px;
+  }
+}

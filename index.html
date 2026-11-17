@@ -1,1411 +1,260 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sabrina Yuan — Portfolio</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sabrina Yuan — AI developer</title>
+<meta name="description" content="Sabrina Yuan — AI developer and Cognitive Systems student at UBC. I build AI tools and apps for real people, and study how their brains work.">
 
-    html {
-      scroll-snap-type: y mandatory;
-      overflow-y: scroll;
-      scrollbar-width: none;
-    }
-    html::-webkit-scrollbar { display: none; }
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 
-    body {
-      background: #0d0518;
-      color: #f5f0f2;
-      font-family: 'DM Sans', sans-serif;
-      overflow-x: hidden;
-      cursor: none;
-    }
-    @media (hover: none) { body { cursor: auto; } #cursor { display: none; } }
+<meta property="og:type" content="website">
+<meta property="og:title" content="Sabrina Yuan — AI developer">
+<meta property="og:description" content="I build AI tools and apps for real people, and study how their brains work.">
+<meta property="og:image" content="assets/og-image.svg">
+<meta property="og:url" content="[SITE URL]">
+<meta name="twitter:card" content="summary_large_image">
 
-    /* ── Canvas background ───────────────────────────────────────────── */
-    #bg {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: 0;
-      pointer-events: none;
-    }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
 
-    /* ── Custom cursor ───────────────────────────────────────────────── */
-    #cursor {
-      position: fixed;
-      width: 8px; height: 8px;
-      background: #f9a8d4;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 99999;
-      transform: translate(-50%, -50%);
-      transition: width .15s, height .15s, background .15s, opacity .15s;
-    }
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/pearl.css">
 
-    /* ── Splash ──────────────────────────────────────────────────────── */
-    .splash {
-      position: fixed;
-      inset: 0;
-      z-index: 500;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #0d0518;
-      animation: splashFade 0.9s ease-in-out 2s forwards;
-      pointer-events: auto;
-    }
-    @keyframes splashFade { to { opacity: 0; pointer-events: none; visibility: hidden; } }
-    .splash-text {
-      font-family: 'Cormorant Garamond', serif;
-      font-style: italic;
-      font-weight: 300;
-      font-size: clamp(3rem, 7vw, 6rem);
-      color: #f9a8d4;
-      letter-spacing: 0.1em;
-      opacity: 0;
-      animation: splashIn 1.4s ease 0.2s forwards;
-    }
-    @keyframes splashIn {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ── Sections ────────────────────────────────────────────────────── */
-    .scene-section {
-      position: relative;
-      height: 100vh;
-      scroll-snap-align: start;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1;
-    }
-    .scene-section.left  { justify-content: flex-start; }
-    .scene-section.right { justify-content: flex-end; }
-
-    /* ── Content cards ───────────────────────────────────────────────── */
-    .scene-content {
-      position: relative;
-      z-index: 2;
-      max-width: 560px;
-      padding: 2.4rem 3rem;
-      background: rgba(13, 5, 24, 0.55);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid rgba(249,168,212,.1);
-      border-radius: 4px;
-      opacity: 0;
-      transform: translateY(28px);
-      transition: opacity 1s ease, transform 1s ease;
-    }
-    .scene-content.visible { opacity: 1; transform: translateY(0); }
-    .scene-section.left  .scene-content { margin-left: 8vw; }
-    .scene-section.right .scene-content { margin-right: 8vw; }
-    .scene-section.center .scene-content { text-align: center; background: transparent; border: none; backdrop-filter: none; }
-
-    /* ── Typography ──────────────────────────────────────────────────── */
-    .scene-tag {
-      font-size: .63rem; font-weight: 600;
-      letter-spacing: .35em; text-transform: uppercase;
-      color: #db2777; margin-bottom: 1rem;
-    }
-    .scene-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-      font-size: clamp(2.6rem, 5.5vw, 5rem);
-      color: #f5f0f2;
-      line-height: 1.05;
-      margin-bottom: .7rem;
-    }
-    .scene-title.italic { font-style: italic; }
-    .scene-award {
-      font-size: .73rem; color: #f9a8d4;
-      letter-spacing: .04em; margin-bottom: 1rem;
-      min-height: 1rem;
-    }
-    .scene-desc {
-      font-weight: 300; font-size: .87rem;
-      line-height: 1.85;
-      color: rgba(245,240,242,.58);
-      margin-bottom: 1.5rem;
-    }
-
-    .tags { display: flex; flex-wrap: wrap; gap: .38rem; margin-bottom: 1.5rem; }
-    .tag {
-      font-size: .63rem; font-weight: 500;
-      letter-spacing: .06em;
-      color: #f9a8d4;
-      background: rgba(249,168,212,.06);
-      border: 1px solid rgba(249,168,212,.18);
-      border-radius: 2px;
-      padding: .18rem .52rem;
-    }
-
-    .scene-links { display: flex; gap: 1.2rem; flex-wrap: wrap; }
-    .scene-links a {
-      font-size: .7rem; font-weight: 500;
-      letter-spacing: .12em; text-transform: uppercase;
-      color: rgba(249,168,212,.65);
-      text-decoration: none;
-      border-bottom: 1px solid rgba(249,168,212,.22);
-      padding-bottom: 1px;
-      transition: color .2s, border-color .2s;
-    }
-    .scene-links a:hover { color: #f9a8d4; border-color: #f9a8d4; }
-
-    .pills { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: 1.6rem; }
-    .pill {
-      font-size: .68rem; font-weight: 500;
-      color: rgba(249,168,212,.8);
-      background: rgba(249,168,212,.06);
-      border: 1px solid rgba(249,168,212,.18);
-      border-radius: 100px;
-      padding: .26rem .82rem;
-    }
-
-    /* ── Contact ─────────────────────────────────────────────────────── */
-    .contact-row {
-      display: flex; justify-content: center;
-      gap: 3rem; margin: 2.2rem 0;
-      flex-wrap: wrap;
-    }
-    .clink {
-      display: flex; flex-direction: column;
-      align-items: center; gap: .55rem;
-      text-decoration: none;
-      color: rgba(249,168,212,.65);
-      transition: color .25s;
-    }
-    .clink:hover { color: #f9a8d4; }
-    .clink-icon {
-      width: 44px; height: 44px;
-      border: 1.5px solid rgba(249,168,212,.38);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem;
-      transition: border-color .25s, box-shadow .25s;
-    }
-    .clink:hover .clink-icon {
-      border-color: #f9a8d4;
-      box-shadow: 0 0 16px rgba(249,168,212,.22);
-    }
-    .clink-label {
-      font-size: .63rem; font-weight: 600;
-      letter-spacing: .2em; text-transform: uppercase;
-    }
-
-    .btn {
-      display: inline-block;
-      font-size: .73rem; font-weight: 600;
-      letter-spacing: .2em; text-transform: uppercase;
-      color: #f9a8d4;
-      border: 1px solid rgba(249,168,212,.32);
-      padding: .82rem 2.2rem;
-      text-decoration: none;
-      transition: background .3s, border-color .3s, box-shadow .3s;
-      margin-top: 1rem;
-    }
-    .btn:hover {
-      background: rgba(249,168,212,.08);
-      border-color: rgba(249,168,212,.65);
-      box-shadow: 0 0 22px rgba(249,168,212,.12);
-    }
-
-    footer {
-      font-size: .65rem; font-weight: 300;
-      color: rgba(249,168,212,.2);
-      letter-spacing: .06em;
-      margin-top: 2rem;
-    }
-
-    /* ── Side dot nav ────────────────────────────────────────────────── */
-    .scene-nav {
-      position: fixed;
-      right: 2rem; top: 50%;
-      transform: translateY(-50%);
-      z-index: 100;
-      display: flex; flex-direction: column;
-      gap: .75rem;
-    }
-    .scene-nav button {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(249,168,212,.25);
-      cursor: pointer; padding: 0;
-      transition: background .3s, transform .3s;
-    }
-    .scene-nav button.active { background: #f9a8d4; transform: scale(1.6); }
-    .scene-nav button:hover  { background: rgba(249,168,212,.65); }
-
-    /* ── Toast ───────────────────────────────────────────────────────── */
-    #toast {
-      position: fixed;
-      bottom: 3rem; left: 50%;
-      transform: translateX(-50%) translateY(16px);
-      z-index: 300;
-      background: rgba(18, 6, 28, 0.94);
-      border: 1px solid rgba(249,168,212,.28);
-      color: #f9a8d4;
-      font-size: .78rem; letter-spacing: .05em;
-      padding: .7rem 1.8rem;
-      border-radius: 100px;
-      opacity: 0;
-      transition: opacity .4s, transform .4s;
-      pointer-events: none;
-      white-space: nowrap;
-    }
-    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-    /* ── Scroll hint ─────────────────────────────────────────────────── */
-    .scroll-hint {
-      position: absolute;
-      bottom: 2.5rem; left: 50%;
-      transform: translateX(-50%);
-      display: flex; flex-direction: column;
-      align-items: center; gap: .45rem;
-      z-index: 2;
-    }
-    .scroll-hint span {
-      font-size: .55rem; font-weight: 400;
-      letter-spacing: .28em; text-transform: uppercase;
-      color: rgba(249,168,212,.38);
-    }
-    .scroll-line {
-      width: 1px; height: 34px;
-      background: linear-gradient(to bottom, rgba(249,168,212,.5), transparent);
-      transform-origin: top;
-      animation: lineGrow 2.4s ease-in-out infinite;
-    }
-    @keyframes lineGrow {
-      0%   { transform: scaleY(0); opacity: 1; }
-      55%  { transform: scaleY(1); opacity: 1; }
-      100% { transform: scaleY(1); opacity: 0; }
-    }
-
-    /* ── Secret note (hidden gesture reveal) ─────────────────────────── */
-    .secret-note {
-      font-size: .76rem; font-style: italic;
-      color: rgba(249,168,212,.48);
-      margin-top: .8rem;
-      max-height: 0; overflow: hidden;
-      opacity: 0;
-      transition: max-height .6s ease, opacity .6s ease;
-    }
-    .secret-note.revealed { max-height: 3rem; opacity: 1; }
-
-    /* ── Petal burst canvas overlay ──────────────────────────────────── */
-    #burst-canvas {
-      position: fixed;
-      inset: 0; width: 100%; height: 100%;
-      z-index: 200;
-      pointer-events: none;
-    }
-
-    /* ── Responsive ──────────────────────────────────────────────────── */
-    @media (max-width: 768px) {
-      .scene-section.left  .scene-content { margin-left: 5vw; max-width: calc(100vw - 10vw); }
-      .scene-section.right .scene-content { margin-right: 5vw; max-width: calc(100vw - 10vw); }
-      .scene-content { padding: 1.8rem 1.8rem; }
-      .contact-row { gap: 2rem; }
-      .scene-nav { right: 1rem; }
-    }
-    @media (max-width: 480px) {
-      .scene-nav { display: none; }
-      .scene-section.left, .scene-section.right { justify-content: center; }
-      .scene-section.left  .scene-content,
-      .scene-section.right .scene-content { margin: 0; max-width: 92vw; }
-    }
-  </style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
 </head>
 <body>
 
-  <canvas id="bg"></canvas>
-  <canvas id="burst-canvas"></canvas>
-  <div id="cursor"></div>
-  <div id="toast"></div>
+<a class="skip-link" href="#main">Skip to content</a>
 
-  <!-- Splash -->
-  <div class="splash">
-    <span class="splash-text">Hello World :)</span>
+<!-- HERO -->
+<header id="top" class="hero">
+  <div class="hero-glow" aria-hidden="true"></div>
+
+  <svg class="hero-swirls drift" aria-hidden="true" viewBox="0 0 700 640" preserveAspectRatio="xMaxYMid slice">
+    <path d="M720 40 C520 90 420 220 520 330 C620 440 470 560 260 620" fill="none" stroke="#F2A9BE" stroke-width="10" opacity="0.18" style="filter: blur(8px)"></path>
+    <path d="M720 40 C520 90 420 220 520 330 C620 440 470 560 260 620" fill="none" stroke="#F2A9BE" stroke-width="1.2" opacity="0.9"></path>
+    <path d="M740 110 C560 150 470 250 560 350 C650 450 520 580 330 660" fill="none" stroke="#F2A9BE" stroke-width="0.8" opacity="0.55"></path>
+    <path d="M700 0 C470 60 380 200 470 320 C560 440 400 560 180 640" fill="none" stroke="#F2A9BE" stroke-width="0.6" opacity="0.35"></path>
+  </svg>
+
+  <canvas id="hero-canvas" class="hero-canvas" aria-hidden="true"></canvas>
+
+  <div class="pearls-fallback" aria-hidden="true">
+    <div class="pearl pearl-lg float"></div>
+    <div class="pearl pearl-md float"></div>
+    <div class="pearl pearl-sm float"></div>
   </div>
 
-  <!-- Side dot nav -->
-  <nav class="scene-nav" aria-label="Scene navigation">
-    <button data-target="0" class="active" title="Home"></button>
-    <button data-target="1" title="Bento Buddies"></button>
-    <button data-target="2" title="Ripple"></button>
-    <button data-target="3" title="Memory Lane"></button>
-    <button data-target="4" title="RAG Chatbot"></button>
-    <button data-target="5" title="About &amp; Contact"></button>
-  </nav>
+  <div class="hero-header">
+    <a href="#top" class="lnk brand">
+      <svg class="brand-mark" aria-hidden="true" viewBox="0 0 40 26">
+        <path d="M4 21 L11 17 M11 17 C13 11 21 9 27 12 C29 8 34 8 35 11 L39 12 L35 14 C34 18 30 21 24 21 C19 21 14 20 11 17 Z M18 21 L17 25 M23 21 L23 25" fill="none" stroke="#F6E7EC" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <circle cx="31" cy="11" r="0.9" fill="#F6E7EC"></circle>
+      </svg>
+      <span class="brand-name">Sabrina</span>
+    </a>
+    <nav class="main-nav" aria-label="Main">
+      <a href="#about" class="lnk">About</a>
+      <a href="#work" class="lnk">Work</a>
+      <a href="#experience" class="lnk">Experience</a>
+      <a href="Sabrina_Yuan_Resume.pdf" class="lnk" target="_blank" rel="noopener">Resume</a>
+      <a href="#contact" class="lnk btn btn-primary">Contact</a>
+    </nav>
+  </div>
 
-  <!-- ══ Scene 0 — Hero ══════════════════════════════════════════════════ -->
-  <section class="scene-section center" id="scene-0">
-    <div class="scene-content">
-      <h1 class="scene-title italic">Sabrina Yuan</h1>
-      <p class="scene-desc" style="max-width:400px;margin:0 auto;">
-        Cognitive systems student at the intersection of AI and design
-      </p>
-    </div>
-    <div class="scroll-hint">
-      <span>scroll</span>
-      <div class="scroll-line"></div>
-    </div>
-  </section>
+  <div class="hero-copy js-fade">
+    <p class="label">AI developer · Cognitive Systems, UBC</p>
+    <h1 class="hero-h1">Hi, I'm Sabrina.<br><em>I build with AI.</em></h1>
+    <p class="hero-sub">I make AI tools and apps for real people, and I study how their brains work.</p>
+    <a href="#work" class="lnk btn btn-primary">View my work <span aria-hidden="true">→</span></a>
+  </div>
+</header>
 
-  <!-- ══ Scene 1 — Bento Buddies ════════════════════════════════════════ -->
-  <section class="scene-section left" id="scene-1">
-    <div class="scene-content">
-      <p class="scene-tag">01 — Selected Work</p>
-      <h2 class="scene-title" id="title-1">Bento Buddies</h2>
-      <p class="scene-award">🏆 Top 3 Finalist · Best Accessible Design — HackCamp 2025 (70+ teams)</p>
-      <p class="scene-desc">Campus dining meetup platform. Led a team of 3, built Firebase auth + real-time Firestore messaging, and an interactive campus map with 45+ dining locations. Currently rebuilding as a native iOS app in Swift/SwiftUI for App Store deployment.</p>
-      <div class="tags">
-        <span class="tag">SwiftUI</span>
-        <span class="tag">Firebase</span>
-        <span class="tag">Google Maps API</span>
-        <span class="tag">Accessibility</span>
-      </div>
-      <div class="scene-links">
-        <a href="https://devpost.com/software/food-buddy-finder" target="_blank" rel="noopener">DevPost ↗</a>
-      </div>
-      <p class="secret-note" id="secret-1">☁️ Built in 24 hours on three hours of sleep. The map alone took six hours.</p>
-    </div>
-  </section>
+<main id="main">
 
-  <!-- ══ Scene 2 — Ripple ════════════════════════════════════════════════ -->
-  <section class="scene-section right" id="scene-2">
-    <div class="scene-content">
-      <p class="scene-tag">02 — Selected Work</p>
-      <h2 class="scene-title" id="title-2">Ripple</h2>
-      <p class="scene-award">🏆 Top 3 · Best Wellness Hack by PCCA — nwHacks 2026 (70 teams)</p>
-      <p class="scene-desc">Cross-platform wellness app addressing student loneliness through anonymous peer support events. Integrated ElevenLabs API for AI-guided meditation based on user research into student mental health.</p>
-      <div class="tags">
-        <span class="tag">React Native</span>
-        <span class="tag">Expo</span>
-        <span class="tag">ElevenLabs API</span>
-        <span class="tag">AI</span>
-      </div>
-      <div class="scene-links">
-        <a href="https://github.com/sabrinayuan07-cloud/Ripple-nwHacks-2026" target="_blank" rel="noopener">GitHub ↗</a>
-        <a href="https://www.figma.com/design/0SVCmObbhBL4glf1EhXVU4/Ripple-Design?node-id=0-1&p=f&t=5QRmhS04zR182gZg-0" target="_blank" rel="noopener">Figma ↗</a>
-      </div>
-      <p class="secret-note" id="secret-2">🌊 Named after how emotions ripple outward. The meditation voice turned out surprisingly peaceful.</p>
-    </div>
-  </section>
+  <!-- ABOUT + CURRENTLY -->
+  <section id="about" class="about" aria-labelledby="about-heading">
+    <div class="about-glow" aria-hidden="true"></div>
+    <div class="about-row">
 
-  <!-- ══ Scene 3 — Memory Lane ══════════════════════════════════════════ -->
-  <section class="scene-section left" id="scene-3">
-    <div class="scene-content">
-      <p class="scene-tag">03 — Selected Work</p>
-      <h2 class="scene-title" id="title-3">Memory Lane</h2>
-      <p class="scene-award">&nbsp;</p>
-      <p class="scene-desc">Cross-platform app helping elderly users preserve memories through daily voice recordings and photo uploads. Firebase Auth, Firestore, Storage; family linking via shareable codes; text-to-speech accessibility; personalized daily prompts and memory recall quizzes.</p>
-      <div class="tags">
-        <span class="tag">Firebase</span>
-        <span class="tag">ElevenLabs</span>
-        <span class="tag">Gemini API</span>
-        <span class="tag">Accessibility</span>
+      <div class="about-card glass js-fade">
+        <div class="about-text">
+          <p class="label">About</p>
+          <h2 id="about-heading" class="about-heading">Code, brains, and <em>good design.</em></h2>
+          <p class="about-body">Third-year Cognitive Systems at UBC. By day I build RAG systems; on the side I'm shipping two apps that started at hackathons. I care a lot about accessibility. Off the clock I'm reading, planning a trip, or feeding the neighbourhood crows peanuts.</p>
+        </div>
+        <div class="about-image hide-sm" aria-hidden="true"></div>
       </div>
-      <div class="scene-links">
-        <a href="https://github.com/sabrinayuan07-cloud/Memory-Lane" target="_blank" rel="noopener">GitHub ↗</a>
-        <a href="https://www.figma.com/design/SpXyJwNCZoc67uRU3rLILk/Memory-Lane?node-id=0-1&p=f" target="_blank" rel="noopener">Figma ↗</a>
-      </div>
-      <p class="secret-note" id="secret-3">💛 My grandparents inspired this one. The best ideas come from the most personal places.</p>
-    </div>
-  </section>
 
-  <!-- ══ Scene 4 — RAG Chatbot ══════════════════════════════════════════ -->
-  <section class="scene-section right" id="scene-4">
-    <div class="scene-content">
-      <p class="scene-tag">04 — Selected Work</p>
-      <h2 class="scene-title" id="title-4">RAG Mental Health Chatbot</h2>
-      <p class="scene-award">🔧 Currently building</p>
-      <p class="scene-desc">Context-aware chatbot using retrieval-augmented generation. Grounded, non-hallucinated mental health resources pulled from a curated knowledge base via LangChain and ChromaDB, powered by the Anthropic API.</p>
-      <div class="tags">
-        <span class="tag">Python</span>
-        <span class="tag">LangChain</span>
-        <span class="tag">ChromaDB</span>
-        <span class="tag">Anthropic API</span>
-        <span class="tag">AI</span>
-      </div>
-      <p class="secret-note" id="secret-4">🤖 RAG is like giving an LLM a fact-checker. Grounding answers in real sources changes everything.</p>
-    </div>
-  </section>
+      <div class="currently glass js-fade">
+        <p class="label">Currently</p>
 
-  <!-- ══ Scene 5 — About & Contact ══════════════════════════════════════ -->
-  <section class="scene-section center" id="scene-5">
-    <div class="scene-content">
-      <p class="scene-tag">About &amp; Contact</p>
-      <h2 class="scene-title italic" style="font-size:clamp(2.2rem,4.5vw,4rem);margin-bottom:1.2rem;">Let's connect</h2>
-      <p class="scene-desc" style="max-width:440px;margin:0 auto 0;">
-        Third-year Cognitive Systems student at UBC. AI Developer at the Department of National Defence. UI/UX Designer at UBC Startups Club. I build things that matter.
-      </p>
-      <div class="pills" style="justify-content:center;margin-bottom:1.8rem;">
-        <span class="pill">AI &amp; ML</span>
-        <span class="pill">UI/UX Design</span>
-        <span class="pill">iOS Dev</span>
-        <span class="pill">Cognitive Science</span>
-        <span class="pill">Accessibility</span>
-      </div>
-      <div class="contact-row">
-        <a href="mailto:sabrinayuan.07@gmail.com" class="clink">
-          <div class="clink-icon">✉</div>
-          <span class="clink-label">Email</span>
-        </a>
-        <a href="https://www.linkedin.com/in/sabrina-yuan-062b4422b" class="clink" target="_blank" rel="noopener">
-          <div class="clink-icon" style="font-family:'DM Sans',sans-serif;font-weight:700;font-size:.85rem;">in</div>
-          <span class="clink-label">LinkedIn</span>
-        </a>
-        <a href="https://github.com/sabrinayuan07-cloud" class="clink" target="_blank" rel="noopener">
-          <div class="clink-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+        <div class="currently-item">
+          <span class="currently-dot" aria-hidden="true"><span></span></span>
+          <div>
+            <p class="currently-title">Shipping</p>
+            <p class="currently-desc">Bento Buddies to the App Store, mid-December</p>
           </div>
-          <span class="clink-label">GitHub</span>
-        </a>
-        <a href="https://devpost.com/sabrinayuan07-cloud" class="clink" target="_blank" rel="noopener">
-          <div class="clink-icon" style="font-family:'DM Sans',sans-serif;font-weight:700;font-size:.82rem;">&lt;/&gt;</div>
-          <span class="clink-label">DevPost</span>
-        </a>
+        </div>
+
+        <div class="currently-item">
+          <span class="currently-dot" aria-hidden="true"></span>
+          <div>
+            <p class="currently-title">Building</p>
+            <p class="currently-desc">MemoryLane, now funded</p>
+          </div>
+        </div>
+
+        <div class="currently-item">
+          <span class="currently-dot" aria-hidden="true"></span>
+          <div>
+            <p class="currently-title">Working</p>
+            <p class="currently-desc">AI Developer, DND · GenAI Developer, UBC LTIC</p>
+          </div>
+        </div>
+
+        <div class="currently-item">
+          <span class="currently-dot" aria-hidden="true"></span>
+          <div>
+            <p class="currently-title">Reading</p>
+            <p class="currently-desc">[BOOK TITLE]</p>
+          </div>
+        </div>
       </div>
-      <a href="resume.pdf" class="btn" target="_blank">Download Resume</a>
-      <footer>© 2026 Sabrina Yuan — Designed &amp; built by me</footer>
+
     </div>
   </section>
 
-<script>
-// ════════════════════════════════════════════════════════════
-//  Three.js — 6 Immersive 3D Scenes
-// ════════════════════════════════════════════════════════════
-
-const SH = 22; // vertical separation between worlds (3D units)
-
-// ── Renderer ─────────────────────────────────────────────────────────────
-const canvas = document.getElementById('bg');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setSize(window.innerWidth, window.innerHeight);
-
-const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x0d0518, 20, 48);
-
-const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 120);
-camera.position.set(0, 0, 12);
-camera.lookAt(0, 0, 0);
-
-// Camera anchor positions per scene
-const CAM_POSITIONS = [
-  new THREE.Vector3( 0,        0,    12),
-  new THREE.Vector3( 2.5,    -SH,    10),
-  new THREE.Vector3(-1.5, -SH*2,    13),
-  new THREE.Vector3( 1,   -SH*3,    11),
-  new THREE.Vector3(-2,   -SH*4,    12),
-  new THREE.Vector3( 0,   -SH*5,    11),
-];
-const CAM_TARGETS = CAM_POSITIONS.map((p, i) => new THREE.Vector3(0, p.y, 0));
-const BG_COLORS = [
-  new THREE.Color(0x0d0518),
-  new THREE.Color(0x0f0808),
-  new THREE.Color(0x030b1a),
-  new THREE.Color(0x0c0608),
-  new THREE.Color(0x020510),
-  new THREE.Color(0x060118),
-];
-
-const currentCamPos  = CAM_POSITIONS[0].clone();
-const currentLookAt  = CAM_TARGETS[0].clone();
-const currentBg      = BG_COLORS[0].clone();
-const targetCamPos   = CAM_POSITIONS[0].clone();
-const targetLookAt   = CAM_TARGETS[0].clone();
-const targetBg       = BG_COLORS[0].clone();
-
-// Scratch vectors
-const _v3 = new THREE.Vector3();
-const _c  = new THREE.Color();
-
-// ── Helpers ───────────────────────────────────────────────────────────────
-function smoothstep(t) { return t * t * (3 - 2 * t); }
-
-function makeParticles(count, spreadX, spreadY, spreadZ, color, size) {
-  const pos = new Float32Array(count * 3);
-  for (let i = 0; i < count; i++) {
-    pos[i*3]   = (Math.random() - 0.5) * spreadX;
-    pos[i*3+1] = (Math.random() - 0.5) * spreadY;
-    pos[i*3+2] = (Math.random() - 0.5) * spreadZ;
-  }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  return new THREE.Points(geo, new THREE.PointsMaterial({
-    color, size, transparent: true, opacity: 0.85, sizeAttenuation: true, depthWrite: false
-  }));
-}
-
-// ════════════════════════════════════════════════════════════
-//  WORLD 0 — Cherry Blossom Garden (Hero)
-// ════════════════════════════════════════════════════════════
-const world0 = (() => {
-  const g = new THREE.Group();
-  g.position.y = 0;
-
-  // Ground
-  const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(50, 50),
-    new THREE.MeshLambertMaterial({ color: 0x150d20 })
-  );
-  ground.rotation.x = -Math.PI / 2;
-  ground.position.y = -3.2;
-  g.add(ground);
-
-  // Cherry tree trunk
-  const woodMat = new THREE.MeshLambertMaterial({ color: 0x3a1a08 });
-  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.22, 4.5, 8), woodMat);
-  trunk.position.set(-2.2, -1, -3);
-  trunk.rotation.z = 0.06;
-  g.add(trunk);
-
-  // Branches
-  const branchData = [[-0.55, 0.4, -0.35, 2.2], [0.4, -0.25, 0.28, 2.5], [-0.28, 0.7, 0.15, 2], [0.18, 0.45, -0.5, 1.8]];
-  branchData.forEach(([rx, ry, rz, len]) => {
-    const b = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.09, len, 6), woodMat);
-    b.position.set(-2.2 + Math.sin(ry) * len * 0.6, 0.8 + Math.abs(rx) * len * 0.7, -3 + Math.cos(rz) * 0.5);
-    b.rotation.set(rx, ry, rz);
-    g.add(b);
-  });
-
-  // Blossom clusters
-  const blossomMat = new THREE.MeshLambertMaterial({ color: 0xff55aa, transparent: true, opacity: 0.85 });
-  [[-1.1, 2.3, -2.2], [-2.6, 2.6, -3.3], [-1.5, 3.1, -3.8], [-2.2, 3.8, -2.3],
-   [-0.7, 1.9, -3.5], [-3.1, 2.3, -2.6], [-1.8, 2.0, -1.8]].forEach(([x, y, z]) => {
-    const r = 0.42 + Math.random() * 0.52;
-    const b = new THREE.Mesh(new THREE.SphereGeometry(r, 7, 5), blossomMat);
-    b.position.set(x, y, z);
-    g.add(b);
-  });
-
-  // Torii gate
-  const toriiMat = new THREE.MeshLambertMaterial({ color: 0x7a1515 });
-  const pillarGeo = new THREE.CylinderGeometry(0.1, 0.13, 5.5, 7);
-  const lp = new THREE.Mesh(pillarGeo, toriiMat); lp.position.set(2.2, -0.5, -5.5); g.add(lp);
-  const rp = new THREE.Mesh(pillarGeo, toriiMat); rp.position.set(4.0, -0.5, -5.5); g.add(rp);
-  const beam1 = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 2.5, 7), toriiMat);
-  beam1.rotation.z = Math.PI / 2; beam1.position.set(3.1, 2.1, -5.5); g.add(beam1);
-  const beam2 = new THREE.Mesh(new THREE.BoxGeometry(3.1, 0.22, 0.22), toriiMat);
-  beam2.position.set(3.1, 2.55, -5.5); g.add(beam2);
-
-  // Stone lanterns
-  const stoneMat = new THREE.MeshLambertMaterial({ color: 0x2e2642 });
-  [[4.8, -3], [-5.2, -3.5], [0.5, -4]].forEach(([x, z]) => {
-    const base  = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.38, 0.25, 6), stoneMat);
-    const post  = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1.6, 6), stoneMat);
-    const head  = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.5, 0.55), stoneMat);
-    const cap   = new THREE.Mesh(new THREE.ConeGeometry(0.42, 0.32, 6), stoneMat);
-    const glow  = new THREE.Mesh(new THREE.SphereGeometry(0.07, 5, 4), new THREE.MeshBasicMaterial({ color: 0xffcc88 }));
-    base.position.set(x, -3.07, z); g.add(base);
-    post.position.set(x, -2.25, z); g.add(post);
-    head.position.set(x, -1.44, z); g.add(head);
-    cap.position.set(x, -1.07, z);  g.add(cap);
-    glow.position.set(x, -1.44, z); g.add(glow);
-    const pl = new THREE.PointLight(0xffd580, 0.7, 4);
-    pl.position.set(x, -1.44, z); g.add(pl);
-  });
-
-  // Background mountains
-  const mtMat = new THREE.MeshLambertMaterial({ color: 0x1a0e2e, side: THREE.DoubleSide });
-  [[-7, -12], [7, -14], [0, -16], [-4, -11], [4.5, -13], [-2, -15]].forEach(([x, z], i) => {
-    const h = 5 + (i % 3) * 2.5;
-    const mt = new THREE.Mesh(new THREE.ConeGeometry(2.2 + (i % 3) * 1.2, h, 5), mtMat);
-    mt.position.set(x, -3.2 + h / 2, z);
-    g.add(mt);
-  });
-
-  // Falling petals
-  const PETAL_COUNT = 550;
-  const petalPos = new Float32Array(PETAL_COUNT * 3);
-  const petalMeta = [];
-  for (let i = 0; i < PETAL_COUNT; i++) {
-    petalPos[i*3]   = (Math.random() - 0.5) * 22;
-    petalPos[i*3+1] = (Math.random() - 0.5) * 16;
-    petalPos[i*3+2] = (Math.random() - 0.5) * 12;
-    petalMeta.push({ vy: -(0.012 + Math.random() * 0.018), vx: (Math.random() - 0.5) * 0.006, ph: Math.random() * Math.PI * 2 });
-  }
-  const petalGeo = new THREE.BufferGeometry();
-  petalGeo.setAttribute('position', new THREE.BufferAttribute(petalPos, 3));
-  const petals = new THREE.Points(petalGeo, new THREE.PointsMaterial({ color: 0xf9a8d4, size: 0.11, transparent: true, opacity: 0.78, sizeAttenuation: true, depthWrite: false }));
-  g.add(petals);
-
-  // Lights
-  g.add(new THREE.AmbientLight(0x6633aa, 0.7));
-  const pl1 = new THREE.PointLight(0xff44aa, 2.2, 18);
-  pl1.position.set(-2, 4, 2); g.add(pl1);
-  const purpleLight = new THREE.PointLight(0xaa55ff, 1.6, 16);
-  purpleLight.position.set(4, 1, -4); g.add(purpleLight);
-  const fillLight = new THREE.PointLight(0x8844cc, 0.5, 16);
-  fillLight.position.set(0, 2, 8); g.add(fillLight);
-
-  scene.add(g);
-
-  return {
-    group: g,
-    update(t) {
-      const pa = petals.geometry.attributes.position.array;
-      for (let i = 0; i < PETAL_COUNT; i++) {
-        const m = petalMeta[i];
-        pa[i*3]   += m.vx + Math.sin(t * 0.4 + m.ph) * 0.003;
-        pa[i*3+1] += m.vy;
-        pa[i*3+2] += Math.cos(t * 0.3 + m.ph) * 0.003;
-        if (pa[i*3+1] < -9) pa[i*3+1] = 9;
-      }
-      petals.geometry.attributes.position.needsUpdate = true;
-      pl1.intensity = 1.8 + Math.sin(t * 1.1) * 0.45;
-    }
-  };
-})();
-
-// ════════════════════════════════════════════════════════════
-//  WORLD 1 — Lantern Garden (Bento Buddies)
-// ════════════════════════════════════════════════════════════
-const world1 = (() => {
-  const g = new THREE.Group();
-  g.position.y = -SH;
-
-  // Floor
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(50, 50), new THREE.MeshLambertMaterial({ color: 0x0e0705 }));
-  floor.rotation.x = -Math.PI / 2; floor.position.y = -3.2; g.add(floor);
-
-  // Stone path
-  const sm = new THREE.MeshLambertMaterial({ color: 0x281a12 });
-  for (let i = -3; i <= 3; i++) {
-    const stone = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.48, 0.08, 7), sm);
-    stone.position.set((Math.random() - 0.5) * 0.8, -3.16, i * 1.6);
-    stone.rotation.y = Math.random() * Math.PI;
-    g.add(stone);
-  }
-
-  // Bamboo
-  const bambooMat = new THREE.MeshLambertMaterial({ color: 0x3a5a22 });
-  const jointMat  = new THREE.MeshLambertMaterial({ color: 0x2a4418 });
-  [-4.2, -3.5, 3.4, 4.1, 3.8, -3.9].forEach(x => {
-    const h = 5.5 + Math.random() * 3;
-    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.075, h, 5), bambooMat);
-    pole.position.set(x, -3.2 + h / 2, -1.5 + Math.random() * -4);
-    pole.rotation.z = (Math.random() - 0.5) * 0.12;
-    g.add(pole);
-    for (let j = 1; j < 4; j++) {
-      const jt = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, 0.09, 5), jointMat);
-      jt.position.set(x, -3.2 + (h / 4) * j, pole.position.z);
-      g.add(jt);
-    }
-  });
-
-  // Floating lanterns
-  const lColors = [0xff8c42, 0xff6b9d, 0xffb347, 0xff4466, 0xffd535, 0xff7eb3];
-  const lanternData = [];
-  for (let i = 0; i < 14; i++) {
-    const lg = new THREE.Group();
-    const col = lColors[i % lColors.length];
-    const body = new THREE.Mesh(new THREE.SphereGeometry(0.34, 10, 7), new THREE.MeshLambertMaterial({ color: col, transparent: true, opacity: 0.82 }));
-    lg.add(body);
-    const capGeo = new THREE.CylinderGeometry(0.09, 0.19, 0.14, 7);
-    const capMat = new THREE.MeshLambertMaterial({ color: 0x241205 });
-    const capT = new THREE.Mesh(capGeo, capMat); capT.position.y =  0.4; lg.add(capT);
-    const capB = new THREE.Mesh(capGeo, capMat); capB.position.y = -0.4; capB.rotation.z = Math.PI; lg.add(capB);
-    const pl = new THREE.PointLight(col, 1.1, 4.5);
-    lg.add(pl);
-    lg.position.set((Math.random() - 0.5) * 14, -1.5 + Math.random() * 4, -0.5 + Math.random() * -8);
-    g.add(lg);
-    lanternData.push({ lg, startY: lg.position.y, speed: 0.007 + Math.random() * 0.006, ph: Math.random() * Math.PI * 2, pl });
-  }
-
-  // Fireflies
-  const FF = 220;
-  const ffPos  = new Float32Array(FF * 3);
-  const ffMeta = [];
-  for (let i = 0; i < FF; i++) {
-    ffPos[i*3]   = (Math.random() - 0.5) * 18;
-    ffPos[i*3+1] = -2.5 + Math.random() * 7;
-    ffPos[i*3+2] = (Math.random() - 0.5) * 10;
-    ffMeta.push({ vx: (Math.random()-0.5)*0.009, vy: 0.004+Math.random()*0.007, vz: (Math.random()-0.5)*0.009, ph: Math.random()*Math.PI*2 });
-  }
-  const ffGeo = new THREE.BufferGeometry();
-  ffGeo.setAttribute('position', new THREE.BufferAttribute(ffPos, 3));
-  const fireflies = new THREE.Points(ffGeo, new THREE.PointsMaterial({ color: 0xbbff55, size: 0.065, transparent: true, opacity: 0.88, sizeAttenuation: true, depthWrite: false }));
-  g.add(fireflies);
-
-  g.add(new THREE.AmbientLight(0x553311, 1.4));
-  const wl = new THREE.PointLight(0xff8c42, 2.8, 28); wl.position.set(0, 4, 0); g.add(wl);
-  const wl2 = new THREE.PointLight(0xff6b9d, 1.8, 20); wl2.position.set(0, 2, 6); g.add(wl2);
-  scene.add(g);
-
-  return {
-    group: g,
-    update(t) {
-      lanternData.forEach(({ lg, startY, speed, ph, pl }) => {
-        lg.position.y += speed;
-        lg.position.x += Math.sin(t * 0.6 + ph) * 0.003;
-        if (lg.position.y > startY + 9) lg.position.y = startY - 1.5;
-        lg.rotation.y = Math.sin(t * 0.4 + ph) * 0.12;
-        pl.intensity = 0.7 + Math.sin(t * 1.8 + ph) * 0.38;
-      });
-      const ffa = fireflies.geometry.attributes.position.array;
-      for (let i = 0; i < FF; i++) {
-        const m = ffMeta[i];
-        ffa[i*3]   += m.vx + Math.sin(t * 0.7 + m.ph) * 0.004;
-        ffa[i*3+1] += m.vy;
-        ffa[i*3+2] += m.vz;
-        if (ffa[i*3+1] > 5)             ffa[i*3+1] = -2.5;
-        if (Math.abs(ffa[i*3]) > 10)    ffa[i*3] *= -0.92;
-      }
-      fireflies.geometry.attributes.position.needsUpdate = true;
-    }
-  };
-})();
-
-// ════════════════════════════════════════════════════════════
-//  WORLD 2 — Lotus Grotto (Ripple)
-// ════════════════════════════════════════════════════════════
-const world2 = (() => {
-  const g = new THREE.Group();
-  g.position.y = -SH * 2;
-
-  // Animated water
-  const W_SEGS = 40;
-  const waterGeo = new THREE.PlaneGeometry(28, 22, W_SEGS, W_SEGS);
-  const waterMat = new THREE.MeshLambertMaterial({ color: 0x0a2a4a, transparent: true, opacity: 0.88, side: THREE.DoubleSide });
-  const waterMesh = new THREE.Mesh(waterGeo, waterMat);
-  waterMesh.rotation.x = -Math.PI / 2;
-  waterMesh.position.y = -2.8;
-  g.add(waterMesh);
-  const wOrigY = Array.from(waterGeo.attributes.position.array).filter((_, i) => i % 3 === 2);
-
-  // Lily pads
-  const padMat = new THREE.MeshLambertMaterial({ color: 0x1a4a1a });
-  [[1.5, -2.75, -1], [-2, -2.75, 0.5], [3, -2.75, 1], [-1, -2.75, -2]].forEach(([x, y, z]) => {
-    const pad = new THREE.Mesh(new THREE.CylinderGeometry(0.6 + Math.random()*0.3, 0.6 + Math.random()*0.3, 0.05, 14), padMat);
-    pad.position.set(x, y, z); g.add(pad);
-  });
-
-  // Lotus flowers
-  const petalM = new THREE.MeshLambertMaterial({ color: 0xf4a0c0, transparent: true, opacity: 0.9, side: THREE.DoubleSide });
-  const centerM = new THREE.MeshLambertMaterial({ color: 0xffdd88 });
-  [[1.5, -2.5, -1], [-2, -2.5, 0.5], [3, -2.5, 1]].forEach(([x, y, z]) => {
-    for (let p = 0; p < 7; p++) {
-      const ang = (p / 7) * Math.PI * 2;
-      const petal = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.6, 5), petalM);
-      petal.position.set(x + Math.cos(ang) * 0.3, y + 0.2, z + Math.sin(ang) * 0.3);
-      petal.rotation.set(0.55, ang, 0);
-      g.add(petal);
-    }
-    const ctr = new THREE.Mesh(new THREE.SphereGeometry(0.18, 7, 5), centerM);
-    ctr.position.set(x, y + 0.35, z); g.add(ctr);
-  });
-
-  // Underwater glow particles
-  const UP = makeParticles(400, 20, 10, 12, 0x88ccff, 0.07);
-  g.add(UP);
-  const upMeta = Array.from({ length: 400 }, () => ({ vy: 0.005 + Math.random()*0.008, ph: Math.random()*Math.PI*2 }));
-
-  // Caustic-ish point lights
-  const causticLights = [];
-  for (let i = 0; i < 4; i++) {
-    const cl = new THREE.PointLight(0x4488cc, 1.2, 10);
-    cl.position.set((Math.random()-0.5)*8, -1, (Math.random()-0.5)*6);
-    g.add(cl); causticLights.push({ cl, ph: Math.random()*Math.PI*2 });
-  }
-
-  g.add(new THREE.AmbientLight(0x1a3a60, 1.5));
-  const blueL = new THREE.PointLight(0x4488ff, 3.0, 30); blueL.position.set(0, 3, 0); g.add(blueL);
-  const lavL  = new THREE.PointLight(0xaa66ff, 2.2, 22); lavL.position.set(-3, 4, -3); g.add(lavL);
-  const fillL = new THREE.PointLight(0x88ccff, 1.5, 18); fillL.position.set(3, 0, 6); g.add(fillL);
-  scene.add(g);
-
-  return {
-    group: g,
-    update(t) {
-      // Ripple water vertices
-      const wPos = waterGeo.attributes.position.array;
-      let vi = 0;
-      for (let ix = 0; ix <= W_SEGS; ix++) {
-        for (let iz = 0; iz <= W_SEGS; iz++) {
-          const wx = wPos[vi*3];
-          const wz = wPos[vi*3+1];
-          wPos[vi*3+2] = Math.sin(wx * 0.5 + t * 1.1) * 0.18 + Math.cos(wz * 0.6 + t * 0.9) * 0.14;
-          vi++;
-        }
-      }
-      waterGeo.attributes.position.needsUpdate = true;
-      waterGeo.computeVertexNormals();
-
-      // Float particles
-      const upa = UP.geometry.attributes.position.array;
-      for (let i = 0; i < 400; i++) {
-        const m = upMeta[i];
-        upa[i*3+1] += m.vy;
-        upa[i*3]   += Math.sin(t * 0.5 + m.ph) * 0.003;
-        if (upa[i*3+1] > 3) upa[i*3+1] = -5;
-      }
-      UP.geometry.attributes.position.needsUpdate = true;
-
-      causticLights.forEach(({ cl, ph }) => {
-        cl.intensity = 0.8 + Math.sin(t * 1.5 + ph) * 0.5;
-        cl.position.x += Math.sin(t * 0.4 + ph) * 0.015;
-        cl.position.z += Math.cos(t * 0.3 + ph) * 0.012;
-      });
-    }
-  };
-})();
-
-// ════════════════════════════════════════════════════════════
-//  WORLD 3 — Memory Archive (Memory Lane)
-// ════════════════════════════════════════════════════════════
-const world3 = (() => {
-  const g = new THREE.Group();
-  g.position.y = -SH * 3;
-
-  // Floating photo frames
-  const frameMat = new THREE.MeshLambertMaterial({ color: 0xf5e8d0 });
-  const innerMat = new THREE.MeshLambertMaterial({ color: 0x2a1a10 });
-  const frameData = [];
-  for (let i = 0; i < 16; i++) {
-    const fw = 0.9 + Math.random() * 0.7, fh = 0.8 + Math.random() * 0.6;
-    const fg = new THREE.Group();
-    const outer = new THREE.Mesh(new THREE.BoxGeometry(fw, fh, 0.06), frameMat);
-    const inner = new THREE.Mesh(new THREE.BoxGeometry(fw - 0.14, fh - 0.14, 0.07), innerMat);
-    fg.add(outer); fg.add(inner);
-    fg.position.set((Math.random()-0.5)*14, (Math.random()-0.5)*8, -1 + Math.random()*-10);
-    fg.rotation.set((Math.random()-0.5)*0.3, (Math.random()-0.5)*0.4, (Math.random()-0.5)*0.25);
-    g.add(fg);
-    frameData.push({ fg, ph: Math.random()*Math.PI*2, speed: 0.0025 + Math.random()*0.002 });
-  }
-
-  // Golden dust
-  const dust = makeParticles(600, 18, 14, 14, 0xffd070, 0.055);
-  g.add(dust);
-  const dustMeta = Array.from({ length: 600 }, () => ({
-    vx: (Math.random()-0.5)*0.005, vy: (Math.random()-0.5)*0.004 + 0.001, ph: Math.random()*Math.PI*2
-  }));
-
-  // Soft bokeh blobs
-  const blobMat = new THREE.MeshBasicMaterial({ color: 0xffa040, transparent: true, opacity: 0.04 });
-  for (let i = 0; i < 8; i++) {
-    const blob = new THREE.Mesh(new THREE.SphereGeometry(1.2 + Math.random(), 6, 4), blobMat);
-    blob.position.set((Math.random()-0.5)*12, (Math.random()-0.5)*7, -5 + Math.random()*-6);
-    g.add(blob);
-  }
-
-  // Wooden beam passing through
-  const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 22, 7), new THREE.MeshLambertMaterial({ color: 0x4a2a10 }));
-  beam.rotation.z = Math.PI / 2; beam.position.y = 2.5; g.add(beam);
-
-  g.add(new THREE.AmbientLight(0x553820, 1.5));
-  const gold1 = new THREE.PointLight(0xffaa44, 3.2, 25); gold1.position.set(0, 4, 2); g.add(gold1);
-  const gold2 = new THREE.PointLight(0xff8833, 2.0, 18); gold2.position.set(-5, 0, -4); g.add(gold2);
-  const gold3 = new THREE.PointLight(0xffcc88, 1.6, 20); gold3.position.set(5, 2, 4); g.add(gold3);
-  scene.add(g);
-
-  return {
-    group: g,
-    update(t) {
-      frameData.forEach(({ fg, ph, speed }) => {
-        fg.position.y += Math.sin(t * speed * 40 + ph) * 0.004;
-        fg.rotation.z  = Math.sin(t * 0.3 + ph) * 0.08;
-        fg.rotation.y  = Math.sin(t * 0.2 + ph * 0.7) * 0.06;
-      });
-      const da = dust.geometry.attributes.position.array;
-      for (let i = 0; i < 600; i++) {
-        const m = dustMeta[i];
-        da[i*3]   += m.vx + Math.sin(t * 0.4 + m.ph) * 0.002;
-        da[i*3+1] += m.vy;
-        da[i*3+2] += Math.cos(t * 0.3 + m.ph) * 0.002;
-        if (da[i*3+1] > 8)  da[i*3+1] = -7;
-        if (da[i*3+1] < -8) da[i*3+1] = 7;
-      }
-      dust.geometry.attributes.position.needsUpdate = true;
-      gold1.intensity = 1.6 + Math.sin(t * 0.8) * 0.42;
-    }
-  };
-})();
-
-// ════════════════════════════════════════════════════════════
-//  WORLD 4 — Neural Grove (RAG Chatbot)
-// ════════════════════════════════════════════════════════════
-const world4 = (() => {
-  const g = new THREE.Group();
-  g.position.y = -SH * 4;
-
-  // Neural nodes
-  const nodeData = [];
-  const nodePositions = [];
-  const nodeMats = [0x00ff88, 0xa855f7, 0x00ccff, 0xff55aa].map(c => new THREE.MeshLambertMaterial({ color: c, emissive: new THREE.Color(c), emissiveIntensity: 0.4 }));
-  for (let i = 0; i < 38; i++) {
-    const pos = new THREE.Vector3((Math.random()-0.5)*14, (Math.random()-0.5)*9, (Math.random()-0.5)*8);
-    nodePositions.push(pos);
-    const node = new THREE.Mesh(new THREE.SphereGeometry(0.12 + Math.random()*0.1, 8, 6), nodeMats[i % 4]);
-    node.position.copy(pos);
-    g.add(node);
-    nodeData.push({ node, ph: Math.random()*Math.PI*2, basePos: pos.clone() });
-  }
-
-  // Edges (connections between nearby nodes)
-  const edgeMat = new THREE.LineBasicMaterial({ color: 0x6633aa, transparent: true, opacity: 0.35 });
-  for (let i = 0; i < nodePositions.length; i++) {
-    for (let j = i + 1; j < nodePositions.length; j++) {
-      if (nodePositions[i].distanceTo(nodePositions[j]) < 5.5) {
-        const eg = new THREE.BufferGeometry().setFromPoints([nodePositions[i], nodePositions[j]]);
-        g.add(new THREE.Line(eg, edgeMat));
-      }
-    }
-  }
-
-  // Signal pulses traveling along edges
-  const pulses = [];
-  for (let p = 0; p < 12; p++) {
-    const pi = Math.floor(Math.random() * nodePositions.length);
-    let pj;
-    do { pj = Math.floor(Math.random() * nodePositions.length); } while (pj === pi);
-    const pm = new THREE.Mesh(new THREE.SphereGeometry(0.08, 5, 4), new THREE.MeshBasicMaterial({ color: 0x00ffaa }));
-    pm.position.copy(nodePositions[pi]);
-    g.add(pm);
-    pulses.push({ pm, from: nodePositions[pi].clone(), to: nodePositions[pj].clone(), t: Math.random(), speed: 0.004 + Math.random()*0.004 });
-  }
-
-  // Dark tree silhouettes
-  const treeMat = new THREE.MeshLambertMaterial({ color: 0x0a0818 });
-  [-6, -4.5, 5, 6.5, -5.5].forEach(x => {
-    const h = 6 + Math.random() * 4;
-    const tr = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.1, h, 5), treeMat);
-    tr.position.set(x, -3.2 + h/2, -6 + Math.random()*-3);
-    g.add(tr);
-    const top = new THREE.Mesh(new THREE.ConeGeometry(1.2, 3.5, 5), treeMat);
-    top.position.set(x, -3.2 + h + 1.2, tr.position.z);
-    g.add(top);
-  });
-
-  // Background particle haze
-  const haze = makeParticles(350, 18, 12, 10, 0x6633aa, 0.06);
-  g.add(haze);
-
-  g.add(new THREE.AmbientLight(0x112244, 1.2));
-  const neonG = new THREE.PointLight(0x00ff88, 3.0, 28); neonG.position.set(0, 3, 2); g.add(neonG);
-  const neonP = new THREE.PointLight(0xaa44ff, 3.0, 25); neonP.position.set(-3, 0, -4); g.add(neonP);
-  const neonC = new THREE.PointLight(0x00ccff, 2.0, 20); neonC.position.set(4, 2, 2); g.add(neonC);
-  scene.add(g);
-
-  return {
-    group: g,
-    update(t) {
-      nodeData.forEach(({ node, ph }) => {
-        const s = 1 + Math.sin(t * 1.4 + ph) * 0.22;
-        node.scale.setScalar(s);
-      });
-      pulses.forEach(p => {
-        p.t += p.speed;
-        if (p.t >= 1) p.t = 0;
-        p.pm.position.lerpVectors(p.from, p.to, p.t);
-        const s = 0.5 + Math.sin(p.t * Math.PI) * 0.8;
-        p.pm.scale.setScalar(s);
-      });
-      neonG.intensity = 1.2 + Math.sin(t * 1.6) * 0.35;
-      neonP.intensity = 1.4 + Math.cos(t * 1.2) * 0.4;
-    }
-  };
-})();
-
-// ════════════════════════════════════════════════════════════
-//  WORLD 5 — Midnight Pagoda (About & Contact)
-// ════════════════════════════════════════════════════════════
-const world5 = (() => {
-  const g = new THREE.Group();
-  g.position.y = -SH * 5;
-
-  // Stars
-  const STARS = 900;
-  const starPos = new Float32Array(STARS * 3);
-  for (let i = 0; i < STARS; i++) {
-    starPos[i*3]   = (Math.random()-0.5) * 60;
-    starPos[i*3+1] = Math.random() * 20;
-    starPos[i*3+2] = -2 + Math.random() * -30;
-  }
-  const starGeo = new THREE.BufferGeometry();
-  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-  const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.07, transparent: true, opacity: 0.7, sizeAttenuation: true, depthWrite: false }));
-  g.add(stars);
-
-  // Moon
-  const moonMesh = new THREE.Mesh(
-    new THREE.SphereGeometry(1.8, 16, 12),
-    new THREE.MeshBasicMaterial({ color: 0xfff5e0 })
-  );
-  moonMesh.position.set(5.5, 6, -12);
-  g.add(moonMesh);
-  const moonGlow = new THREE.PointLight(0xfff5cc, 2.2, 30);
-  moonGlow.position.copy(moonMesh.position);
-  g.add(moonGlow);
-
-  // Pagoda
-  const pagMat = new THREE.MeshLambertMaterial({ color: 0x1c0e28 });
-  const eaveMat = new THREE.MeshLambertMaterial({ color: 0x2a1535 });
-  const roofMat = new THREE.MeshLambertMaterial({ color: 0x3a1a45 });
-  // 4 tiers
-  [0, 1, 2, 3].forEach(tier => {
-    const w = 2.4 - tier * 0.4, h = 1.0;
-    const base = new THREE.Mesh(new THREE.BoxGeometry(w, h, w), pagMat);
-    base.position.set(-5.5, -3.2 + tier * (h + 0.55) + h/2, -6);
-    g.add(base);
-    const eaveW = w + 0.7;
-    const eave = new THREE.Mesh(new THREE.BoxGeometry(eaveW, 0.1, eaveW), eaveMat);
-    eave.position.set(-5.5, -3.2 + tier * (h + 0.55) + h, -6);
-    g.add(eave);
-    const roof = new THREE.Mesh(new THREE.ConeGeometry((eaveW - 0.1) / 2, 0.65, 4), roofMat);
-    roof.position.set(-5.5, -3.2 + tier * (h + 0.55) + h + 0.35, -6);
-    roof.rotation.y = Math.PI / 4;
-    g.add(roof);
-  });
-  // Top finial
-  const fin = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.0, 5), new THREE.MeshLambertMaterial({ color: 0xddaa44 }));
-  fin.position.set(-5.5, 2.6, -6); g.add(fin);
-
-  // Reflecting pool
-  const pool = new THREE.Mesh(
-    new THREE.PlaneGeometry(12, 6),
-    new THREE.MeshLambertMaterial({ color: 0x0a0820, transparent: true, opacity: 0.75 })
-  );
-  pool.rotation.x = -Math.PI / 2; pool.position.set(0, -3.18, -2); g.add(pool);
-
-  // Cherry petals (echo of scene 0)
-  const PETALS2 = 380;
-  const p2Pos  = new Float32Array(PETALS2 * 3);
-  const p2Meta = [];
-  for (let i = 0; i < PETALS2; i++) {
-    p2Pos[i*3]   = (Math.random()-0.5)*20;
-    p2Pos[i*3+1] = (Math.random()-0.5)*14;
-    p2Pos[i*3+2] = (Math.random()-0.5)*10;
-    p2Meta.push({ vy: -(0.01+Math.random()*0.016), vx: (Math.random()-0.5)*0.005, ph: Math.random()*Math.PI*2 });
-  }
-  const p2Geo = new THREE.BufferGeometry();
-  p2Geo.setAttribute('position', new THREE.BufferAttribute(p2Pos, 3));
-  const petals2 = new THREE.Points(p2Geo, new THREE.PointsMaterial({ color: 0xf9a8d4, size: 0.1, transparent: true, opacity: 0.72, sizeAttenuation: true, depthWrite: false }));
-  g.add(petals2);
-
-  g.add(new THREE.AmbientLight(0x221044, 1.4));
-  const pinkMoon = new THREE.PointLight(0xdd99ff, 2.5, 28); pinkMoon.position.set(2, 5, -2); g.add(pinkMoon);
-  const moonFill = new THREE.PointLight(0xfff5cc, 2.0, 35); moonFill.position.copy(moonMesh.position); g.add(moonFill);
-  scene.add(g);
-
-  let moonShattered = false;
-  const moonShards = [];
-
-  return {
-    group: g,
-    moonMesh,
-    moonShattered,
-    moonShards,
-    update(t) {
-      const p2a = petals2.geometry.attributes.position.array;
-      for (let i = 0; i < PETALS2; i++) {
-        const m = p2Meta[i];
-        p2a[i*3]   += m.vx + Math.sin(t*0.35+m.ph)*0.003;
-        p2a[i*3+1] += m.vy;
-        p2a[i*3+2] += Math.cos(t*0.28+m.ph)*0.003;
-        if (p2a[i*3+1] < -8) p2a[i*3+1] = 8;
-      }
-      petals2.geometry.attributes.position.needsUpdate = true;
-
-      // Gently rotate moon
-      moonMesh.rotation.y = t * 0.05;
-      moonGlow.intensity = 2.0 + Math.sin(t * 0.6) * 0.25;
-
-      // Twinkle stars
-      stars.material.opacity = 0.6 + Math.sin(t * 0.3) * 0.12;
-
-      // Update shards if shattered
-      if (moonShards.length > 0) {
-        moonShards.forEach(s => {
-          s.mesh.position.addScaledVector(s.vel, 1);
-          s.vel.y -= 0.003;
-          s.mesh.rotation.x += s.rSpeed;
-          s.mesh.rotation.z += s.rSpeed * 0.7;
-          s.mesh.material.opacity = Math.max(0, s.mesh.material.opacity - 0.006);
-        });
-      }
-    }
-  };
-})();
-
-const allWorlds = [world0, world1, world2, world3, world4, world5];
-
-// ════════════════════════════════════════════════════════════
-//  Scroll & Camera
-// ════════════════════════════════════════════════════════════
-let scrollProgress = 0;
-let activeScene = 0;
-const dots = document.querySelectorAll('.scene-nav button');
-
-function easeInOut(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
-
-function updateFromScroll() {
-  const rawProgress = window.scrollY / window.innerHeight;
-  scrollProgress = Math.max(0, Math.min(5.999, rawProgress));
-  const i = Math.floor(scrollProgress);
-  const t = easeInOut(scrollProgress - i);
-  const next = Math.min(i + 1, 5);
-
-  targetCamPos.lerpVectors(CAM_POSITIONS[i], CAM_POSITIONS[next], t);
-  targetLookAt.lerpVectors(CAM_TARGETS[i],   CAM_TARGETS[next],   t);
-  targetBg.copy(BG_COLORS[i]).lerp(BG_COLORS[next], t);
-  scene.fog.color.copy(targetBg);
-  scene.fog.near  = 18 + t * 4;
-  scene.fog.far   = 46 + t * 4;
-
-  const newScene = Math.min(5, Math.max(0, Math.round(scrollProgress)));
-  if (newScene !== activeScene) {
-    activeScene = newScene;
-    dots.forEach((d, di) => d.classList.toggle('active', di === activeScene));
-  }
-}
-
-window.addEventListener('scroll', updateFromScroll, { passive: true });
-
-// Dot nav click
-dots.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const target = parseInt(btn.dataset.target, 10);
-    window.scrollTo({ top: target * window.innerHeight, behavior: 'smooth' });
-  });
-});
-
-// ════════════════════════════════════════════════════════════
-//  Reveal on scroll (IntersectionObserver)
-// ════════════════════════════════════════════════════════════
-const revealIO = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) e.target.classList.add('visible');
-    else e.target.classList.remove('visible');
-  });
-}, { threshold: 0.15 });
-document.querySelectorAll('.scene-content').forEach(el => revealIO.observe(el));
-// Ensure scene-0 content shows immediately on load
-window.addEventListener('load', () => {
-  const first = document.querySelector('#scene-0 .scene-content');
-  if (first) setTimeout(() => first.classList.add('visible'), 2200);
-});
-
-// ════════════════════════════════════════════════════════════
-//  Animation Loop
-// ════════════════════════════════════════════════════════════
-const clock = new THREE.Clock();
-
-function animate() {
-  requestAnimationFrame(animate);
-  const t = clock.getElapsedTime();
-
-  // Smooth camera
-  currentCamPos.lerp(targetCamPos, 0.06);
-  currentLookAt.lerp(targetLookAt, 0.06);
-  camera.position.copy(currentCamPos);
-  camera.lookAt(currentLookAt);
-
-  // Smooth background
-  currentBg.lerp(targetBg, 0.05);
-  renderer.setClearColor(currentBg, 1);
-  scene.fog.color.copy(currentBg);
-
-  // Update worlds (always update neighbors for smooth fly-through)
-  allWorlds.forEach(w => w.update(t));
-
-  renderer.render(scene, camera);
-}
-animate();
-
-// ════════════════════════════════════════════════════════════
-//  Resize
-// ════════════════════════════════════════════════════════════
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
-// ════════════════════════════════════════════════════════════
-//  Custom cursor
-// ════════════════════════════════════════════════════════════
-const cursor = document.getElementById('cursor');
-document.addEventListener('mousemove', e => {
-  cursor.style.left = e.clientX + 'px';
-  cursor.style.top  = e.clientY + 'px';
-});
-document.querySelectorAll('a, button').forEach(el => {
-  el.addEventListener('mouseenter', () => { cursor.style.width = '20px'; cursor.style.height = '20px'; cursor.style.background = '#db2777'; cursor.style.opacity = '.4'; });
-  el.addEventListener('mouseleave', () => { cursor.style.width = '8px'; cursor.style.height = '8px'; cursor.style.background = '#f9a8d4'; cursor.style.opacity = '1'; });
-});
-
-// ════════════════════════════════════════════════════════════
-//  Toast helper
-// ════════════════════════════════════════════════════════════
-let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
-}
-
-// ════════════════════════════════════════════════════════════
-//  Hidden Gesture 1 — Double-click: petal burst at cursor
-// ════════════════════════════════════════════════════════════
-const burstCanvas = document.getElementById('burst-canvas');
-const bctx = burstCanvas.getContext('2d');
-burstCanvas.width  = window.innerWidth;
-burstCanvas.height = window.innerHeight;
-window.addEventListener('resize', () => { burstCanvas.width = window.innerWidth; burstCanvas.height = window.innerHeight; });
-
-let burstParticles = [];
-function spawnBurst(x, y, count = 30) {
-  for (let i = 0; i < count; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const speed = 1.5 + Math.random() * 4;
-    burstParticles.push({
-      x, y,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed - 2,
-      life: 1,
-      size: 3 + Math.random() * 5,
-      hue: 310 + Math.random() * 40
-    });
-  }
-}
-
-function animateBurst() {
-  requestAnimationFrame(animateBurst);
-  bctx.clearRect(0, 0, burstCanvas.width, burstCanvas.height);
-  burstParticles = burstParticles.filter(p => p.life > 0);
-  burstParticles.forEach(p => {
-    p.x    += p.vx;
-    p.y    += p.vy;
-    p.vy   += 0.12;
-    p.life -= 0.025;
-    bctx.save();
-    bctx.globalAlpha = p.life;
-    bctx.fillStyle = `hsl(${p.hue}, 80%, 75%)`;
-    bctx.beginPath();
-    bctx.ellipse(p.x, p.y, p.size * 0.5, p.size, 0, 0, Math.PI * 2);
-    bctx.fill();
-    bctx.restore();
-  });
-}
-animateBurst();
-
-document.addEventListener('dblclick', e => {
-  if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
-  spawnBurst(e.clientX, e.clientY, 35);
-});
-
-// ════════════════════════════════════════════════════════════
-//  Hidden Gesture 2 — Triple-click project title → secret note
-// ════════════════════════════════════════════════════════════
-[1,2,3,4].forEach(i => {
-  const titleEl  = document.getElementById(`title-${i}`);
-  const secretEl = document.getElementById(`secret-${i}`);
-  if (!titleEl || !secretEl) return;
-  let clickCount = 0, clickTimer;
-  titleEl.addEventListener('click', () => {
-    clickCount++;
-    clearTimeout(clickTimer);
-    clickTimer = setTimeout(() => { clickCount = 0; }, 600);
-    if (clickCount >= 3) {
-      secretEl.classList.toggle('revealed');
-      clickCount = 0;
-    }
-  });
-});
-
-// ════════════════════════════════════════════════════════════
-//  Hidden Gesture 3 — Konami code → sakura storm
-// ════════════════════════════════════════════════════════════
-const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
-let konamiIdx = 0;
-document.addEventListener('keydown', e => {
-  if (e.key === KONAMI[konamiIdx]) {
-    konamiIdx++;
-    if (konamiIdx === KONAMI.length) {
-      konamiIdx = 0;
-      showToast('✨ sakura secret unlocked ✨');
-      // Burst 200 petals from random positions
-      for (let b = 0; b < 8; b++) {
-        setTimeout(() => {
-          spawnBurst(
-            Math.random() * window.innerWidth,
-            Math.random() * window.innerHeight,
-            45
-          );
-        }, b * 150);
-      }
-    }
-  } else {
-    konamiIdx = 0;
-  }
-});
-
-// ════════════════════════════════════════════════════════════
-//  Hidden Gesture 4 — Click the moon (scene 5) → shatter
-// ════════════════════════════════════════════════════════════
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
-let moonClickable = true;
-
-canvas.addEventListener('click', e => {
-  if (!moonClickable) return;
-  mouse.x =  (e.clientX / window.innerWidth)  * 2 - 1;
-  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-  raycaster.setFromCamera(mouse, camera);
-  const hits = raycaster.intersectObject(world5.moonMesh);
-  if (hits.length > 0) {
-    moonClickable = false;
-    world5.moonMesh.visible = false;
-    showToast('🌕 the moon remembers everything');
-    // Spawn star shards
-    const moonPos = world5.moonMesh.position.clone().add(new THREE.Vector3(0, -SH*5, 0));
-    for (let s = 0; s < 28; s++) {
-      const shard = new THREE.Mesh(
-        new THREE.SphereGeometry(0.12 + Math.random()*0.12, 5, 4),
-        new THREE.MeshBasicMaterial({ color: 0xfff5cc, transparent: true, opacity: 0.9 })
-      );
-      shard.position.copy(world5.moonMesh.position);
-      world5.group.add(shard);
-      const ang = Math.random() * Math.PI * 2;
-      const spd = 0.06 + Math.random() * 0.1;
-      world5.moonShards.push({
-        mesh: shard,
-        vel: new THREE.Vector3(Math.cos(ang)*spd, 0.05+Math.random()*0.08, Math.sin(ang)*spd*0.5),
-        rSpeed: (Math.random()-0.5)*0.08
-      });
-    }
-    // Respawn moon after 5s
-    setTimeout(() => {
-      world5.moonMesh.visible = true;
-      world5.moonShards.forEach(s => world5.group.remove(s.mesh));
-      world5.moonShards.length = 0;
-      moonClickable = true;
-    }, 5000);
-  }
-});
-
-// pointer cursor over moon
-canvas.addEventListener('mousemove', e => {
-  if (!moonClickable) return;
-  mouse.x =  (e.clientX / window.innerWidth)  * 2 - 1;
-  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-  raycaster.setFromCamera(mouse, camera);
-  const hits = raycaster.intersectObject(world5.moonMesh);
-  canvas.style.cursor = hits.length > 0 ? 'pointer' : 'none';
-});
-</script>
+  <!-- WORK -->
+  <section id="work" class="work" aria-labelledby="work-heading">
+    <div class="work-inner glass js-fade">
+      <div class="work-head">
+        <p id="work-heading" class="label">Selected work</p>
+        <a href="[ALL PROJECTS LINK]" class="lnk view-all">View all →</a>
+      </div>
+
+      <div class="grid4">
+
+        <a href="case-studies/memorylane.html" class="lnk card work-card">
+          <div class="work-thumb thumb-memorylane">
+            <div class="thumb-house" aria-hidden="true"></div>
+            <div class="thumb-pearl" aria-hidden="true"></div>
+            <p class="work-thumb-tag">[screenshot]</p>
+          </div>
+          <div>
+            <p class="work-title">MemoryLane</p>
+            <p class="work-desc">Voice-first app for seniors with memory loss. Funded.</p>
+          </div>
+        </a>
+
+        <a href="case-studies/bento-buddies.html" class="lnk card work-card">
+          <div class="work-thumb thumb-bento">
+            <div class="thumb-card" aria-hidden="true"></div>
+            <p class="work-thumb-tag">[screenshot]</p>
+          </div>
+          <div>
+            <p class="work-title">Bento Buddies</p>
+            <p class="work-desc">Lunch meetups for UBC students. Best Accessible Design, HackCamp '25.</p>
+          </div>
+        </a>
+
+        <a href="case-studies/biocbot.html" class="lnk card work-card">
+          <div class="work-thumb thumb-biocbot">
+            <div class="thumb-pill" aria-hidden="true"></div>
+            <p class="work-thumb-tag">[screenshot]</p>
+          </div>
+          <div>
+            <p class="work-title">BiocBot</p>
+            <p class="work-desc">RAG course assistant at UBC. Frontend, design system, retrieval.</p>
+          </div>
+        </a>
+
+        <a href="case-studies/ripple.html" class="lnk card work-card">
+          <div class="work-thumb thumb-ripple">
+            <div class="thumb-ring-lg" aria-hidden="true"></div>
+            <div class="thumb-ring-sm" aria-hidden="true"></div>
+            <div class="thumb-dot" aria-hidden="true"></div>
+            <p class="work-thumb-tag">[screenshot]</p>
+          </div>
+          <div>
+            <p class="work-title">Ripple</p>
+            <p class="work-desc">Top 3 Wellness Hack, nwHacks '26. [ONE LINE ON WHAT IT DOES]</p>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience" class="experience" aria-labelledby="experience-heading">
+    <div class="experience-inner glass">
+      <div class="experience-head">
+        <p class="label">Experience</p>
+        <h2 id="experience-heading" class="experience-heading">Where I've <em>worked.</em></h2>
+      </div>
+      <div class="experience-list">
+        <div class="experience-item">
+          <div class="experience-role">
+            <p class="experience-title">AI Developer, Department of National Defence</p>
+            <p class="experience-meta">RAG on Azure OpenAI + Cognitive Search · Python/Quart, React, TypeScript</p>
+          </div>
+          <p class="experience-dates">[Dates]</p>
+        </div>
+        <div class="experience-item">
+          <div class="experience-role">
+            <p class="experience-title">GenAI Developer, UBC LTIC</p>
+            <p class="experience-meta">BiocBot · frontend, design system, retrieval quality</p>
+          </div>
+          <p class="experience-dates">Sept 2026 – now</p>
+        </div>
+        <div class="experience-item">
+          <div class="experience-role">
+            <p class="experience-title">Software Intern, Syntronic R&amp;D</p>
+            <p class="experience-meta">Python, Agile · [WHAT YOU SHIPPED]</p>
+          </div>
+          <p class="experience-dates">[Dates]</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="contact" class="cta" aria-labelledby="cta-heading">
+    <div class="cta-bar">
+      <svg class="cta-cat" aria-hidden="true" viewBox="0 0 60 50">
+        <path d="M14 49 C10 40 12 30 18 24 L16 10 L24 18 C28 16 33 16 37 18 L45 10 L43 24 C49 30 51 40 47 49 M47 44 C54 44 58 38 55 31" fill="none" stroke="#7A3F55" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M25 30 L26 31 M36 30 L35 31" stroke="#7A3F55" stroke-width="1.3" stroke-linecap="round"></path>
+      </svg>
+      <div class="cta-message">
+        <span class="cta-sparkle" aria-hidden="true">✦</span>
+        <p id="cta-heading" class="cta-text">Hiring interns for [TERM]? <em>Let's talk.</em></p>
+      </div>
+      <a href="mailto:[EMAIL]" class="lnk btn btn-glass">Get in touch <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <p class="footer-sign">Sabrina · Vancouver</p>
+  <nav class="footer-social" aria-label="Social">
+    <a href="[GITHUB LINK]" class="lnk">GitHub</a>
+    <a href="[LINKEDIN LINK]" class="lnk">LinkedIn</a>
+    <a href="Sabrina_Yuan_Resume.pdf" class="lnk" target="_blank" rel="noopener">Resume</a>
+  </nav>
+</footer>
+
+<script type="module" src="js/main.js"></script>
 </body>
 </html>

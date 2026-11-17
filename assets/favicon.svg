@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 26" role="img" aria-label="Line drawing of a crow">
+  <rect width="40" height="26" rx="6" fill="#F7F1EF"/>
+  <path d="M4 21 L11 17 M11 17 C13 11 21 9 27 12 C29 8 34 8 35 11 L39 12 L35 14 C34 18 30 21 24 21 C19 21 14 20 11 17 Z M18 21 L17 25 M23 21 L23 25" fill="none" stroke="#2B2226" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="31" cy="11" r="1" fill="#2B2226"/>
+</svg>
