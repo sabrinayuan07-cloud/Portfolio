@@ -267,7 +267,6 @@ button:focus-visible {
   text-decoration: none;
   min-height: 44px;
 }
-.brand-mark { width: 26px; height: 17px; flex-shrink: 0; }
 .brand-name {
   font-family: var(--font-display);
   font-size: 22px;
@@ -775,6 +774,24 @@ button:focus-visible {
   font-weight: 300;
   color: var(--muted);
 }
+.case-links {
+  display: flex;
+  gap: 4px;
+  margin-top: -8px;
+}
+.case-links a {
+  font-size: var(--label-size);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--rose);
+  padding: 10px 0;
+  margin-right: 20px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
 .back-link {
   align-self: flex-start;
   font-size: var(--label-size);
